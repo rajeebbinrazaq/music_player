@@ -1,0 +1,1876 @@
+{% extends "templates/web.html" %}
+
+{% block title %}Vyb Records{% endblock %}
+
+{% block style %}
+<style>
+	:root {
+		--primary-color: #ffffff;
+		--secondary-color: #888888;
+		--background-dark: #000000;
+		--background-card: #0a0a0a;
+		--text-primary: #ffffff;
+		--text-secondary: #888888;
+		--accent-color: #ffffff;
+		--sidebar-width: 260px;
+	}
+
+	/* Reset & Base Override */
+	body {
+		font-family: 'Outfit', 'Inter', -apple-system, sans-serif !important;
+		background-color: var(--background-dark) !important;
+		color: var(--text-primary) !important;
+		overflow: hidden;
+		/* Prevent body scroll */
+	}
+
+	/* Remove standard padding/margins */
+	.page-content,
+	.section,
+	.container {
+		padding: 0 !important;
+		margin: 0 !important;
+		max-width: none !important;
+		width: 100% !important;
+	}
+
+	footer,
+	.web-footer,
+	.navbar,
+	header,
+	.page-head {
+		display: none !important;
+	}
+
+	/* App Container */
+	.app-container {
+		display: flex;
+		height: 100vh;
+		width: 100vw;
+		background: var(--background-dark);
+	}
+
+	/* Sidebar */
+	.sidebar {
+		width: var(--sidebar-width);
+		background: #000000;
+		padding: 2rem;
+		display: flex;
+		flex-direction: column;
+		border-right: 1px solid #222;
+	}
+
+	.logo-container {
+		margin-bottom: 3rem;
+	}
+
+	.logo {
+		font-size: 1.5rem;
+		font-weight: 800;
+		color: #fff;
+		letter-spacing: -1px;
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.logo svg {
+		color: #fff;
+	}
+
+	.dev-signature {
+		font-size: 0.75rem;
+		color: #444;
+		margin-left: 0.2rem;
+		font-weight: 500;
+	}
+
+	.nav-section {
+		margin-bottom: 2rem;
+		flex-grow: 1;
+	}
+
+	.nav-title {
+		font-size: 0.7rem;
+		text-transform: uppercase;
+		color: #555;
+		margin-bottom: 1rem;
+		font-weight: 700;
+		letter-spacing: 1px;
+	}
+
+	.nav-item {
+		padding: 0.8rem 1rem;
+		border-radius: 8px;
+		/* Rectangular with curved edges */
+		cursor: pointer;
+		transition: all 0.2s ease;
+		margin-bottom: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		color: #888;
+		font-weight: 500;
+	}
+
+	.nav-item:hover {
+		color: #fff;
+		background: #111;
+	}
+
+	.nav-item.active {
+		color: #000;
+		background: #fff;
+	}
+
+	/* Main Content */
+	.main-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		background: #050505;
+	}
+
+	.header {
+		padding: 1.5rem 2rem;
+		display: flex;
+		align-items: center;
+		background: rgba(5, 5, 5, 0.95);
+		backdrop-filter: blur(20px);
+		z-index: 10;
+		position: sticky;
+		top: 0;
+	}
+
+	.search-bar {
+		display: flex;
+		gap: 0.5rem;
+		width: 100%;
+		max-width: 800px;
+	}
+
+	.search-input {
+		flex: 1;
+		padding: 0.8rem 1.2rem;
+		background: #111;
+		border: 1px solid #222;
+		border-radius: 8px;
+		color: #fff;
+		font-size: 0.9rem;
+		transition: all 0.2s ease;
+		width: 100%;
+	}
+
+	.search-input:focus {
+		outline: none;
+		border-color: #444;
+		background: #000;
+	}
+
+	.btn {
+		padding: 0.8rem 1.5rem;
+		background: #fff;
+		color: #000;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: transform 0.1s ease;
+		font-size: 0.9rem;
+	}
+
+	.playlist-btn:active {
+		transform: scale(0.9);
+	}
+
+	.remove-btn {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		background: rgba(0, 0, 0, 0.7);
+		border: none;
+		border-radius: 50%;
+		width: 36px;
+		height: 36px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		opacity: 0;
+		transition: all 0.2s ease;
+		z-index: 10;
+	}
+
+	.remove-btn:hover {
+		background: rgba(231, 76, 60, 0.9);
+		/* Red */
+		transform: scale(1.1);
+	}
+
+	.card-image-wrapper:hover .remove-btn {
+		opacity: 1;
+	}
+
+	.btn:hover {
+		transform: scale(1.02);
+		background: #f0f0f0;
+	}
+
+	.btn-secondary {
+		background: #222;
+		color: #fff;
+	}
+
+	.btn-secondary:hover {
+		background: #333;
+	}
+
+	/* Content Area */
+	.content {
+		flex: 1;
+		overflow-y: auto;
+		padding: 2rem;
+		padding-bottom: 120px;
+		/* Space for player */
+	}
+
+	.section-title {
+		font-size: 2rem;
+		font-weight: 800;
+		margin-bottom: 2rem;
+		color: #fff;
+		letter-spacing: -1px;
+	}
+
+	.songs-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: 2rem;
+	}
+
+	.song-card {
+		background: transparent;
+		border-radius: 12px;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		padding: 10px;
+	}
+
+	.song-card:hover {
+		background: #111;
+	}
+
+	.song-thumbnail {
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		border-radius: 8px;
+		margin-bottom: 1rem;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+	}
+
+	.duration-badge {
+		position: absolute;
+		bottom: 8px;
+		right: 8px;
+		background: rgba(0, 0, 0, 0.8);
+		color: #fff;
+		padding: 2px 6px;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		font-weight: 500;
+	}
+
+	.song-info {
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.song-title {
+		font-weight: 600;
+		font-size: 0.95rem;
+		margin-bottom: 0.25rem;
+		color: #fff;
+		white-space: nowrap;
+		display: inline-block;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		vertical-align: middle;
+	}
+
+	.song-card:hover .song-title {
+		max-width: none;
+		overflow: visible;
+		text-overflow: clip;
+		animation: marquee 6s linear infinite;
+	}
+
+	.song-channel {
+		font-size: 0.8rem;
+		color: #666;
+		display: block;
+	}
+
+	/* Centered Floating Player */
+	.player-container {
+		position: absolute;
+		bottom: 2rem;
+		left: 0;
+		right: 0;
+		display: flex;
+		justify-content: center;
+		pointer-events: none;
+		/* Let clicks pass through outside the player */
+		z-index: 100;
+		/* margin-bottom: 3rem; */
+	}
+
+	.player {
+		background: rgba(15, 15, 15, 0.95);
+		backdrop-filter: blur(20px);
+		padding: 1rem 2rem;
+		border-radius: 16px;
+		width: 90%;
+		max-width: 900px;
+		display: flex;
+		align-items: center;
+		gap: 2rem;
+		border: 1px solid #222;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+		pointer-events: auto;
+		/* Re-enable clicks */
+	}
+
+	.player-info {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		width: 28%;
+		/* Increased slightly to handle content */
+		overflow: hidden;
+	}
+
+	.player-details {
+		flex: 1;
+		min-width: 0;
+		/* Critical for flex child truncation */
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.player-thumbnail {
+		width: 50px;
+		height: 50px;
+		border-radius: 6px;
+		object-fit: cover;
+		flex-shrink: 0;
+	}
+
+	.player-details h4 {
+		font-size: 0.9rem;
+		margin: 0;
+		color: #fff;
+		white-space: nowrap;
+		display: inline-block;
+		animation: marquee 12s linear infinite;
+		/* Ensure it starts from visible or scrolls nicely */
+		transform: translateX(0);
+	}
+
+	/* Pause animation on hover if desired, or keep running. keeping running as requested */
+
+	@keyframes marquee {
+		0% {
+			transform: translateX(0%);
+		}
+
+		20% {
+			transform: translateX(0%);
+		}
+
+		/* Pause briefly at start */
+		100% {
+			transform: translateX(-100%);
+		}
+	}
+
+	.player-details p {
+		font-size: 0.75rem;
+		color: #666;
+		margin: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.player-controls {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.controls-buttons {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+	}
+
+	.control-btn {
+		background: transparent;
+		border: none;
+		color: #fff;
+		cursor: pointer;
+		font-size: 1.2rem;
+		padding: 8px;
+		border-radius: 8px;
+		transition: all 0.2s;
+	}
+
+	.control-btn:hover {
+		background: #222;
+	}
+
+	.play-btn {
+		width: 40px;
+		height: 40px;
+		background: #fff;
+		color: #000;
+		border-radius: 10px;
+		/* Rectangular with curved edges */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.2rem;
+		padding: 0;
+	}
+
+	.play-btn:hover {
+		background: #ddd;
+		transform: scale(1.05);
+	}
+
+	.progress-bar-container {
+		width: 100%;
+		max-width: 400px;
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+	}
+
+	.time {
+		font-size: 0.7rem;
+		color: #666;
+		min-width: 35px;
+		text-align: center;
+	}
+
+	.progress {
+		flex: 1;
+		height: 4px;
+		background: #333;
+		border-radius: 2px;
+		cursor: pointer;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.progress-filled {
+		height: 100%;
+		background: #fff;
+		width: 0%;
+		border-radius: 2px;
+	}
+
+	.volume-control {
+		width: 25%;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.volume-control .icon {
+		width: 20px;
+		height: 20px;
+		fill: #ffffff;
+		/* speaker body */
+		stroke: #ffffff;
+		/* sound waves */
+	}
+
+	.volume-slider {
+		width: 80px;
+		height: 4px;
+		background: #333;
+		border-radius: 2px;
+		cursor: pointer;
+		position: relative;
+	}
+
+	.volume-filled {
+		height: 100%;
+		background: #fff;
+		border-radius: 2px;
+	}
+
+	/* Scrollbar */
+	::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: #222;
+		border-radius: 3px;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: #333;
+	}
+
+	.empty-state {
+		text-align: center;
+		padding: 4rem;
+		color: #333;
+	}
+
+	.library-icon {
+		width: 22px;
+		height: 22px;
+		fill: none;
+		stroke: #a8a8a8;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.favorite-btn {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		background: rgba(0, 0, 0, 0.5);
+		border: none;
+		border-radius: 50%;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		opacity: 0;
+		transition: all 0.2s ease;
+		backdrop-filter: blur(4px);
+	}
+
+	.song-card:hover .favorite-btn,
+	.favorite-btn.active {
+		opacity: 1;
+	}
+
+	.favorite-btn:hover {
+		background: rgba(255, 255, 255, 0.2);
+		transform: scale(1.1);
+	}
+
+	.heart-icon {
+		width: 16px;
+		height: 16px;
+		transition: all 0.2s ease;
+		fill: none;
+		stroke: #ffffff;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.playlist-btn {
+		position: absolute;
+		top: 8px;
+		right: 48px;
+		background: rgba(0, 0, 0, 0.5);
+		border: none;
+		border-radius: 50%;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		opacity: 0;
+		transition: all 0.2s ease;
+		backdrop-filter: blur(4px);
+		fill: none;
+		stroke: #ffffff;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.add-icon {
+		fill: none;
+		stroke: #ffffff;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.song-card:hover .playlist-btn {
+		opacity: 1;
+	}
+
+	.playlist-btn:hover {
+		background: rgba(255, 255, 255, 0.2);
+		transform: scale(1.1);
+	}
+
+	/* Modal Styles */
+	.modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.8);
+		z-index: 1000;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		backdrop-filter: blur(5px);
+	}
+
+	.modal-content {
+		background: #1e1e1e;
+		border-radius: 12px;
+		width: 100%;
+		max-width: 400px;
+		padding: 2rem;
+		border: 1px solid #333;
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+	}
+
+	/* Search Suggestions */
+	.search-container {
+		position: relative;
+		flex: 1;
+		max-width: 800px;
+		/* border: 1px solid rgb(236, 236, 236); */
+	}
+
+	.search-suggestions {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: #1e1e1e;
+		border: 1px solid #333;
+		border-radius: 0 0 12px 12px;
+		max-height: 400px;
+		overflow-y: auto;
+		z-index: 1000;
+		display: none;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	}
+
+	.suggestion-item {
+		display: flex;
+		align-items: center;
+		padding: 10px;
+		border-bottom: 1px solid #333;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.suggestion-item:last-child {
+		border-bottom: none;
+	}
+
+	.suggestion-item:hover {
+		background: #2a2a2a;
+	}
+
+	.suggestion-thumb {
+		width: 40px;
+		height: 40px;
+		object-fit: cover;
+		border-radius: 4px;
+		margin-right: 12px;
+	}
+
+	.suggestion-info {
+		flex: 1;
+		overflow: hidden;
+	}
+
+	.suggestion-title {
+		font-size: 0.9rem;
+		color: #fff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.suggestion-channel {
+		font-size: 0.75rem;
+		color: #888;
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.5rem;
+	}
+
+	.modal-title {
+		font-size: 1.2rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.close-modal {
+		background: transparent;
+		border: none;
+		color: #888;
+		font-size: 1.5rem;
+		cursor: pointer;
+	}
+
+	.playlist-list-modal {
+		max-height: 300px;
+		overflow-y: auto;
+		margin-bottom: 1rem;
+	}
+
+	.playlist-option {
+		padding: 12px;
+		border-radius: 8px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		color: #ddd;
+		transition: background 0.2s;
+		margin-bottom: 5px;
+	}
+
+	.playlist-option:hover {
+		background: #333;
+	}
+
+	.create-playlist-form {
+		margin-top: 1rem;
+		padding-top: 1rem;
+		border-top: 1px solid #333;
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.create-input {
+		flex: 1;
+		background: #333;
+		border: none;
+		padding: 10px 12px;
+		border-radius: 6px;
+		color: #fff;
+		outline: none;
+	}
+
+	.create-input:focus {
+		box-shadow: 0 0 0 2px #555;
+	}
+
+	.create-btn {
+		background: #fff;
+		color: #000;
+		border: none;
+		padding: 8px 16px;
+		border-radius: 6px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="app-container">
+	<!-- Sidebar -->
+	<div class="sidebar">
+		<div class="logo-container">
+			<div class="logo">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="10"></circle>
+					<circle cx="12" cy="12" r="3"></circle>
+					<path d="M12 2A10 10 0 0 0 12 22"></path>
+				</svg>
+				Vyb Records
+			</div>
+			<div class="dev-signature">
+				by <a href="https://github.com/nightcoderrbr" target="_blank"
+					style="color: #666; text-decoration: none;">nightcoderrbr</a>
+				<a href="https://github.com/nightcoderrbr/music_player" target="_blank"
+					style="margin-left: 5px; opacity: 0.7;">
+					<svg viewBox="0 0 24 24" width="14" height="14" fill="#fff">
+						<path
+							d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+					</svg>
+				</a>
+			</div>
+		</div>
+
+		<div class="nav-section">
+			<div class="nav-title">Menu</div>
+			<div class="nav-item {% if not frappe.form_dict.favorites and not frappe.form_dict.playlist %}active{% endif %}"
+				onclick="showAllSongs()">
+				<span>
+					<svg class="library-icon" viewBox="0 0 24 24">
+						<!-- Music list lines -->
+						<line x1="10" y1="6" x2="21" y2="6"></line>
+						<line x1="10" y1="12" x2="21" y2="12"></line>
+						<line x1="10" y1="18" x2="21" y2="18"></line>
+
+						<!-- Record disc -->
+						<circle cx="5" cy="6" r="2"></circle>
+						<circle cx="5" cy="12" r="2"></circle>
+						<circle cx="5" cy="18" r="2"></circle>
+					</svg>
+				</span>
+				<span>Library</span>
+			</div>
+			<div class="nav-item {% if frappe.form_dict.favorites %}active{% endif %}" onclick="showFavorites()">
+				<svg class="library-icon" viewBox="0 0 24 24">
+					<path
+						d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+					</path>
+				</svg>
+				<span>Favorites</span>
+			</div>
+			<div class="nav-item" onclick="showPlaylists()">
+				<!-- <span>
+					<svg class="library-icon" viewBox="0 0 24 24">
+						<line x1="3" y1="6" x2="15" y2="6"></line>
+						<line x1="3" y1="12" x2="15" y2="12"></line>
+						<line x1="3" y1="18" x2="11" y2="18"></line>
+
+						<path d="M17 9 L22 12 L17 15 Z"></path>
+					</svg>
+				</span>
+				<span>Playlists</span> -->
+			</div>
+		</div>
+
+		<div class="nav-section" id="playlists-section">
+			<div class="nav-title">Playlists</div>
+			<div id="playlist-list">
+				{% if playlists %}
+				{% for playlist in playlists %}
+				<div class="nav-item {% if frappe.form_dict.playlist == playlist.name %}active{% endif %}"
+					onclick="loadPlaylist('{{ playlist.name }}')">
+					<span>
+						<svg class="library-icon" viewBox="0 0 24 24">
+							<circle cx="12" cy="12" r="9"></circle>
+							<circle cx="12" cy="12" r="2"></circle>
+						</svg>
+					</span>
+					<span>{{ playlist.playlist_name }}</span>
+				</div>
+				{% endfor %}
+				{% else %}
+				<div style="color: #444; font-size: 0.8rem; padding: 0.5rem;">
+					No playlists
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Main Content -->
+	<div class="main-content">
+		<!-- Header -->
+		<div class="header">
+			<div class="search-bar">
+				<div class="search-container">
+					<input type="text" class="search-input" id="search-input" placeholder="Search song or paste URL..."
+						oninput="statusSearch(this.value)" autocomplete="off">
+					<div class="search-suggestions" id="search-suggestions"></div>
+				</div>
+				<button class="btn" onclick="searchYouTube()">Search</button>
+				<button class="btn btn-secondary" onclick="addFromUrl()">Add URL</button>
+			</div>
+		</div>
+
+		<!-- Content -->
+		<div class="content" id="main-content">
+			<h2 class="section-title">Tracks</h2>
+			<div class="songs-grid" id="songs-grid">
+				{% if all_songs %}
+				{% for song in all_songs %}
+				<div class="song-card" data-youtube-id="{{ song.youtube_id }}" data-title="{{ song.title }}"
+					data-thumbnail="{{ song.thumbnail }}" data-channel="{{ song.channel }}"
+					onclick="playSongFromCard(this)">
+					<div class="card-image-wrapper" style="position: relative;">
+						<img src="{{ song.thumbnail }}" alt="{{ song.title }}" class="song-thumbnail">
+						<button class="playlist-btn"
+							onclick="event.stopPropagation(); openAddToPlaylistModal('{{ song.youtube_id }}')">
+							<svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+								<line x1="12" y1="5" x2="12" y2="19"></line>
+								<line x1="5" y1="12" x2="19" y2="12"></line>
+							</svg>
+						</button>
+						<button class="favorite-btn {% if song.is_favorite %}active{% endif %}"
+							onclick="event.stopPropagation(); toggleFavorite('{{ song.youtube_id }}', this)">
+							<svg class="icon heart-icon" viewBox="0 0 24 24"
+								fill="{% if song.is_favorite %}#e74c3c{% else %}none{% endif %}"
+								stroke="{% if song.is_favorite %}#e74c3c{% else %}#fff{% endif %}">
+								<path
+									d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+								</path>
+							</svg>
+						</button>
+						{% if playlist %}
+						<button class="remove-btn" title="Remove from Playlist"
+							onclick="event.stopPropagation(); removeFromPlaylist('{{ song.youtube_id }}', this.closest('.song-card'))">
+							<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+								<line x1="18" y1="6" x2="6" y2="18"></line>
+								<line x1="6" y1="6" x2="18" y2="18"></line>
+							</svg>
+						</button>
+						{% elif not favorites %}
+						<button class="remove-btn" title="Delete Song" style="background: rgba(231, 76, 60, 0.8);"
+							onclick="event.stopPropagation(); deleteSong('{{ song.name }}', this.closest('.song-card'))">
+							<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+								<polyline points="3 6 5 6 21 6"></polyline>
+								<path
+									d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+								</path>
+							</svg>
+						</button>
+						{% endif %}
+					</div>
+					<div class="song-info">
+						<div class="song-title">{{ song.title }}</div>
+						<div class="song-channel">{{ song.channel }}</div>
+					</div>
+				</div>
+				{% endfor %}
+				{% else %}
+				<div class="empty-state">
+					<h5>No Tracks Found</h5>
+					<small>Start by adding some music to your Vyb</small>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+
+		<!-- Player -->
+		<div class="player-container">
+			<div class="player">
+				<div class="player-info">
+					<img src="/assets/music_player/images/default-thumbnail.jpg" alt="Song" class="player-thumbnail"
+						id="current-thumbnail">
+					<div class="player-details">
+						<h4 id="current-title">Not Playing</h4>
+						<p id="current-channel"></p>
+					</div>
+					<button class="control-btn" id="player-favorite-btn" style="opacity: 0; pointer-events: none;"
+						onclick="togglePlayerFavorite()">
+						<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#fff">
+							<path
+								d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+							</path>
+						</svg>
+					</button>
+				</div>
+
+				<div class="player-controls">
+					<div class="controls-buttons">
+						<button class="control-btn" onclick="previousSong()">⏮</button>
+						<button class="control-btn play-btn" id="play-pause-btn" onclick="togglePlay()">▶</button>
+						<button class="control-btn" onclick="nextSong()">⏭</button>
+					</div>
+					<div class="progress-bar-container">
+						<span class="time" id="current-time">0:00</span>
+						<div class="progress" id="progress-bar" onclick="seek(event)">
+							<div class="progress-filled" id="progress-filled"></div>
+						</div>
+						<span class="time" id="duration">0:00</span>
+					</div>
+				</div>
+
+				<div class="volume-control">
+					<button class="control-btn" onclick="toggleMute()">
+						<svg class="icon" viewBox="0 0 24 24">
+							<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+							<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+						</svg>
+					</button>
+					<div class="volume-slider" onclick="setVolume(event)">
+						<div class="volume-filled" id="volume-filled"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- YouTube Player (Hidden) -->
+<!-- Playlist Modal -->
+<div class="modal-overlay" id="playlist-modal" onclick="closePlaylistModal(event)">
+	<div class="modal-content" onclick="event.stopPropagation()">
+		<div class="modal-header">
+			<div class="modal-title">Add to Playlist</div>
+			<button class="close-modal" onclick="closePlaylistModal()">×</button>
+		</div>
+		<div class="playlist-list-modal" id="modal-playlist-list">
+			<!-- Playlists will be injected here -->
+			<div style="text-align: center; color: #666;">Loading...</div>
+		</div>
+		<div class="create-playlist-form">
+			<input type="text" class="create-input" id="new-playlist-name" placeholder="New Playlist Name">
+			<button class="create-btn" onclick="createNewPlaylist()">Create</button>
+		</div>
+	</div>
+</div>
+
+<div id="youtube-player"></div>
+{% endblock %}
+
+{% block script %}
+<!-- YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script id="playlist-data" type="application/json">
+	{{ all_songs | json }}
+</script>
+
+<script>
+	// Initialize with server-side data for SPA state on first load
+	let currentPlaylist = JSON.parse(document.getElementById('playlist-data').textContent);
+	if (!currentPlaylist) currentPlaylist = [];
+
+	let player;
+	let currentVideoId = null;
+	let isPlaying = false;
+	let currentIndex = 0;
+	let currentViewContext = '{{ "playlist" if playlist else ("favorites" if favorites else "library") }}';
+	let currentContextArg = '{{ playlist.playlist_name if playlist else "" }}'; // Playlist name etc
+
+	function playSongFromCard(element) {
+		const d = element.dataset;
+		// Pass 0 for isFavorite as playSong will check the DOM element for the button state
+		playSong(d.youtubeId, d.title, d.thumbnail, d.channel, 0, element);
+	}
+
+	// Initialize YouTube Player
+	// Initialize YouTube Player
+	window.onYouTubeIframeAPIReady = function () {
+		player = new YT.Player('youtube-player', {
+			height: '0',
+			width: '0',
+			playerVars: {
+				'autoplay': 0,
+				'controls': 0,
+				'enablejsapi': 1,
+				'origin': window.location.origin,
+				'host': 'https://www.youtube.com'
+			},
+			events: {
+				'onReady': onPlayerReady,
+				'onStateChange': onPlayerStateChange
+			}
+		});
+	}
+
+	// If API is already ready (e.g. from previous navigation), init immediately
+	if (window.YT && window.YT.Player && !player) {
+		window.onYouTubeIframeAPIReady();
+	}
+
+	// Save state before unload
+	window.addEventListener('beforeunload', () => {
+		savePlayerState();
+	});
+
+	function restoreUIState() {
+		try {
+			const saved = localStorage.getItem('vyb_player_state');
+			if (saved) {
+				const state = JSON.parse(saved);
+				// Restore UI Elements Immediately
+				const titleElem = document.getElementById('current-title');
+				const channelElem = document.getElementById('current-channel');
+				const thumbElem = document.getElementById('current-thumbnail');
+
+				if (titleElem) titleElem.textContent = state.title;
+				if (channelElem) channelElem.textContent = state.channel;
+				if (thumbElem) thumbElem.src = state.thumbnail;
+
+				// Set currentVideoId so we don't start from scratch
+				currentVideoId = state.videoId;
+
+				// Restore Favorite Button State (Visual only, verifying later)
+				const playerFavBtn = document.getElementById('player-favorite-btn');
+				if (playerFavBtn) {
+					playerFavBtn.style.opacity = '1';
+					playerFavBtn.style.pointerEvents = 'auto';
+
+					// We can try to restore favorite status if we saved it, but current logic fetches it.
+					// Let's trigger the fetch here to be fast.
+					frappe.call({
+						method: 'music_player.music_player.youtube_api.get_library_songs',
+						args: { favorites: 1 },
+						callback: function (r) {
+							if (r.message && r.message.find(s => s.youtube_id === currentVideoId)) {
+								playerFavBtn.classList.add('active');
+								const icon = playerFavBtn.querySelector('svg');
+								if (icon) {
+									icon.setAttribute('fill', '#e74c3c');
+									icon.setAttribute('stroke', '#e74c3c');
+								}
+							}
+						}
+					});
+				}
+			}
+		} catch (e) { console.error('Error restoring UI state', e); }
+	}
+
+	function restorePlayerPlayback() {
+		try {
+			const saved = localStorage.getItem('vyb_player_state');
+			if (saved && player) {
+				const state = JSON.parse(saved);
+				// If currentVideoId is set (from UI restore), ensure it matches. 
+				// If not set yet, we assume state is correct for player init.
+				if (currentVideoId && state.videoId !== currentVideoId) return;
+
+				// Always start paused (cueVideoById)
+				// This loads metadata and seeks to the time, but does not auto-play
+				player.cueVideoById(state.videoId, state.currentTime);
+
+				isPlaying = false;
+				const btn = document.getElementById('play-pause-btn');
+				if (btn) btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+			}
+		} catch (e) { console.error('Error restoring playback', e); }
+	}
+
+	// Call UI Restore Immediately
+	document.addEventListener('DOMContentLoaded', restoreUIState);
+
+	function onPlayerReady(event) {
+		restorePlayerPlayback();
+		setInterval(updateProgress, 1000);
+	}
+
+	// Persistence Functions
+	function savePlayerState() {
+		if (!player || !currentVideoId) return;
+		try {
+			const state = {
+				videoId: currentVideoId,
+				currentTime: player.getCurrentTime(),
+				title: document.getElementById('current-title').textContent,
+				channel: document.getElementById('current-channel').textContent,
+				thumbnail: document.getElementById('current-thumbnail').src,
+				isPlaying: isPlaying,
+				timestamp: new Date().getTime()
+			};
+			localStorage.setItem('vyb_player_state', JSON.stringify(state));
+		} catch (e) { console.error('Error saving state', e); }
+	}
+
+
+
+	function onPlayerStateChange(event) {
+		const btn = document.getElementById('play-pause-btn');
+		if (event.data == YT.PlayerState.PLAYING) {
+			isPlaying = true;
+			btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+		} else {
+			if (event.data == YT.PlayerState.PAUSED) {
+				isPlaying = false;
+				btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+				savePlayerState(); // Save state immediately on pause
+			} else if (event.data == YT.PlayerState.ENDED) {
+				isPlaying = false;
+				btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+				savePlayerState();
+				nextSong(); // Trigger next song logic
+			}
+		}
+	}
+
+	function playSong(videoId, title, thumbnail, channel, isFavorite, cardElement) {
+		currentVideoId = videoId;
+		isPlaying = true;
+
+		// Update UI
+		document.getElementById('current-title').textContent = title;
+		document.getElementById('current-channel').textContent = channel;
+		document.getElementById('current-thumbnail').src = thumbnail;
+
+		// Reset progress
+		document.getElementById('progress-filled').style.width = '0%';
+		document.getElementById('current-time').textContent = '0:00';
+		document.getElementById('duration').textContent = '0:00';
+
+		// Update Favorite Button in Player
+		const playerFavBtn = document.getElementById('player-favorite-btn');
+		const icon = playerFavBtn.querySelector('svg');
+
+		// If card element is passed, we can check the *current* state of its favorite button
+		// This handles the case where the user toggled favorite on the card but didn't reload the page
+		if (cardElement) {
+			const cardFavBtn = cardElement.querySelector('.favorite-btn');
+			if (cardFavBtn && cardFavBtn.classList.contains('active')) {
+				isFavorite = 1;
+			} else {
+				isFavorite = 0;
+			}
+		}
+
+		playerFavBtn.style.opacity = '1';
+		playerFavBtn.style.pointerEvents = 'auto';
+
+		if (isFavorite) {
+			playerFavBtn.classList.add('active');
+			icon.setAttribute('fill', '#e74c3c');
+			icon.setAttribute('stroke', '#e74c3c');
+		} else {
+			playerFavBtn.classList.remove('active');
+			icon.setAttribute('fill', 'none');
+			icon.setAttribute('stroke', '#fff');
+		}
+
+
+		// Find index in current playlist if it exists
+		// We use loose comparison (==) for ID because sometimes it's string vs number or slight variance if dirty data
+		// Also handle both 'youtube_id' and 'video_id' keys
+		if (currentPlaylist) {
+			const idx = currentPlaylist.findIndex(s => (s.youtube_id || s.video_id) == videoId);
+			console.log('Playing song. ID:', videoId, 'Found in playlist at index:', idx);
+
+			if (idx !== -1) {
+				currentIndex = idx;
+			}
+		}
+
+		// Ensure Player is Ready
+		if (player && typeof player.loadVideoById === 'function') {
+			player.loadVideoById(videoId);
+			player.playVideo();
+		} else {
+			// Player not ready yet, retry in a moment
+			setTimeout(() => {
+				playSong(videoId, title, thumbnail, channel, isFavorite, cardElement);
+			}, 500);
+		}
+	}
+
+	function togglePlayerFavorite() {
+		if (!currentVideoId) return;
+
+		const btn = document.getElementById('player-favorite-btn');
+		toggleFavorite(currentVideoId, btn);
+
+		// Also update the card button if it exists in the grid
+		// This is a bit tricky, but beneficial for UX
+		// We can loop through buttons to find matching video ID? Or just leave it async until reload.
+	}
+
+	function togglePlay() {
+		if (!player || !currentVideoId) return;
+
+		if (isPlaying) {
+			player.pauseVideo();
+		} else {
+			player.playVideo();
+		}
+	}
+
+	function previousSong() {
+		if (currentIndex > 0) {
+			currentIndex--;
+			const song = currentPlaylist[currentIndex];
+			playSong(song.youtube_id || song.video_id, song.title, song.thumbnail, song.channel, song.is_favorite);
+		}
+	}
+
+	function nextSong() {
+		// Log for debugging
+		console.log('Next Song triggered. Index:', currentIndex, 'Playlist Length:', currentPlaylist ? currentPlaylist.length : 0);
+
+		if (currentPlaylist && currentPlaylist.length > 0) {
+			// If index is invalid (e.g. -1), start from 0? Or should we duplicate logic?
+			// if currentIndex is -1, next is 0.
+			if (currentIndex < currentPlaylist.length - 1) {
+				currentIndex++;
+				const song = currentPlaylist[currentIndex];
+				playSong(song.youtube_id || song.video_id, song.title, song.thumbnail, song.channel, song.is_favorite);
+				return;
+			}
+		}
+
+		// End of playlist or empty
+		console.log('End of playlist.');
+	}
+
+
+
+	function updateProgress() {
+		if (!player || !player.getCurrentTime) return;
+
+		const currentTime = player.getCurrentTime();
+		const duration = player.getDuration();
+
+		if (duration > 0) {
+			const progress = (currentTime / duration) * 100;
+			document.getElementById('progress-filled').style.width = progress + '%';
+
+			document.getElementById('current-time').textContent = formatTime(currentTime);
+			document.getElementById('duration').textContent = formatTime(duration);
+		}
+
+		// Save state periodically
+		if (isPlaying) {
+			savePlayerState();
+		}
+	}
+
+	function seek(event) {
+		if (!player || !player.getDuration) return;
+
+		const progressBar = event.currentTarget;
+		const clickX = event.offsetX;
+		const width = progressBar.offsetWidth;
+		const duration = player.getDuration();
+
+		const seekTime = (clickX / width) * duration;
+		player.seekTo(seekTime);
+	}
+
+	function setVolume(event) {
+		if (!player) return;
+
+		const volumeBar = event.currentTarget;
+		const clickX = event.offsetX;
+		const width = volumeBar.offsetWidth;
+		const volume = (clickX / width) * 100;
+
+		player.setVolume(volume);
+		document.getElementById('volume-filled').style.width = volume + '%';
+	}
+
+	function updateProgress() {
+		if (!player || !player.getCurrentTime) return;
+
+		const currentTime = player.getCurrentTime();
+		const duration = player.getDuration();
+
+		if (duration > 0) {
+			const progress = (currentTime / duration) * 100;
+			document.getElementById('progress-filled').style.width = progress + '%';
+
+			document.getElementById('current-time').textContent = formatTime(currentTime);
+			document.getElementById('duration').textContent = formatTime(duration);
+		}
+
+		// Save state periodically
+		if (isPlaying) {
+			savePlayerState();
+		}
+	}
+
+	function toggleMute() {
+		if (!player) return;
+
+		if (player.isMuted()) {
+			player.unMute();
+		} else {
+			player.mute();
+		}
+	}
+
+	function formatTime(seconds) {
+		const mins = Math.floor(seconds / 60);
+		const secs = Math.floor(seconds % 60);
+		return mins + ':' + (secs < 10 ? '0' : '') + secs;
+	}
+
+	function searchYouTube() {
+		const query = document.getElementById('search-input').value;
+		if (!query) return;
+
+		// Update UI to show searching state or results header
+		document.querySelector('.section-title').textContent = 'Search Results';
+
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.search_youtube',
+			args: { query: query },
+			callback: function (r) {
+				if (r.message) {
+					displaySearchResults(r.message);
+				}
+			},
+			error: function (r) {
+				// Handle missing API key or other errors
+				frappe.msgprint({
+					title: __('Search Failed'),
+					message: __('Could not search YouTube. Please configure the API Key or use <b>Add URL</b> to add specific songs.'),
+					indicator: 'orange'
+				});
+			}
+		});
+	}
+
+	let searchTimeout;
+
+	function statusSearch(value) {
+		clearTimeout(searchTimeout);
+		if (!value || value.length < 2) {
+			document.getElementById('search-suggestions').style.display = 'none';
+			return;
+		}
+
+		// Check if it's a URL - if so, don't auto-search
+		if (value.includes('http')) return;
+
+		searchTimeout = setTimeout(() => {
+			performLiveSearch(value);
+		}, 600);
+	}
+
+	function performLiveSearch(query) {
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.search_youtube',
+			args: { query: query, max_results: 5 },
+			callback: function (r) {
+				if (r.message && r.message.length > 0) {
+					showSuggestions(r.message);
+				} else {
+					document.getElementById('search-suggestions').style.display = 'none';
+				}
+			}
+		});
+	}
+
+	function showSuggestions(results) {
+		const container = document.getElementById('search-suggestions');
+		container.innerHTML = '';
+		container.style.display = 'block';
+
+		results.forEach(item => {
+			const div = document.createElement('div');
+			div.className = 'suggestion-item';
+
+			// Store data for play function
+			div.dataset.youtubeId = item.video_id;
+			div.dataset.title = item.title;
+			div.dataset.thumbnail = item.thumbnail;
+			div.dataset.channel = item.channel;
+
+			div.onclick = function () {
+				// Play directly
+				playSongFromCard(this);
+
+				// Also populate main view with this result + others (optional, but good UX)
+				// For now just hide suggestions
+				document.getElementById('search-suggestions').style.display = 'none';
+				document.getElementById('search-input').value = item.title;
+			};
+
+			div.innerHTML = `
+				<img src="${item.thumbnail}" class="suggestion-thumb">
+				<div class="suggestion-info">
+					<div class="suggestion-title">${item.title}</div>
+					<div class="suggestion-channel">${item.channel}</div>
+				</div>
+			`;
+			container.appendChild(div);
+		});
+
+		// Close on click outside
+		document.addEventListener('click', closeSuggestionsOnClickOutside);
+	}
+
+	function closeSuggestionsOnClickOutside(e) {
+		if (!e.target.closest('.search-container')) {
+			document.getElementById('search-suggestions').style.display = 'none';
+			document.removeEventListener('click', closeSuggestionsOnClickOutside);
+		}
+	}
+
+	function addFromUrl() {
+		const url = document.getElementById('search-input').value;
+		if (!url) return;
+
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.add_song_from_url',
+			args: { url: url },
+			callback: function (r) {
+				if (r.message) {
+					frappe.show_alert({ message: 'Song added successfully!', indicator: 'green' });
+					setTimeout(() => {
+						location.reload();
+					}, 1000);
+				}
+			}
+		});
+	}
+
+	function displaySearchResults(results) {
+		const grid = document.getElementById('songs-grid');
+		grid.innerHTML = '';
+
+		results.forEach(result => {
+			const card = document.createElement('div');
+			card.className = 'song-card';
+
+			// Set data attributes for the playSongFromCard helper
+			card.dataset.youtubeId = result.video_id;
+			card.dataset.title = result.title;
+			card.dataset.thumbnail = result.thumbnail;
+			card.dataset.channel = result.channel;
+
+			card.onclick = function () { playSongFromCard(this); };
+
+			card.innerHTML = `
+				<div class="card-image-wrapper" style="position: relative;">
+					<img src="${result.thumbnail}" alt="${result.title}" class="song-thumbnail">
+					<button class="playlist-btn"
+						onclick="event.stopPropagation(); openAddToPlaylistModal('${result.video_id}')">
+						<svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+							<line x1="12" y1="5" x2="12" y2="19"></line>
+							<line x1="5" y1="12" x2="19" y2="12"></line>
+						</svg>
+					</button>
+					<button class="favorite-btn"
+						onclick="event.stopPropagation(); toggleFavorite('${result.video_id}', this)">
+						<svg class="icon heart-icon" viewBox="0 0 24 24"
+							fill="none"
+							stroke="#fff">
+							<path
+								d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+							</path>
+						</svg>
+					</button>
+				</div>
+				<div class="song-info">
+					<div class="song-title">${result.title}</div>
+					<div class="song-channel">${result.channel}</div>
+				</div>
+			`;
+
+			grid.appendChild(card);
+		});
+	}
+
+	/* Navigation & SPA Logic */
+	function showAllSongs() {
+		loadView('library');
+	}
+
+	function showFavorites() {
+		loadView('favorites');
+	}
+
+	function loadPlaylist(playlistName) {
+		loadView('playlist', playlistName);
+	}
+
+	function loadView(viewType, arg) {
+		// Update URL history without reload
+		let url = '/music-player';
+		let title = 'Tracks';
+		let apiArgs = {};
+
+		// Update Sidebar Active State
+		document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+		if (viewType === 'favorites') {
+			url = '?favorites=1';
+			title = 'Favorites';
+			apiArgs = { favorites: 1 };
+			// Highlight favorites in sidebar (simple logic, might need more specific selectors if structure changes)
+			document.querySelectorAll('.nav-item')[1].classList.add('active'); // Index 1 is favorites
+		} else if (viewType === 'playlist') {
+			url = '?playlist=' + arg;
+			url = '?playlist=' + arg;
+			title = arg; // Playlist Name
+			apiArgs = { playlist: arg };
+			currentViewContext = 'playlist'; // Context set
+			currentContextArg = arg;
+
+			// Highlight specific playlist
+			const playlistItems = document.querySelectorAll('#playlist-list .nav-item');
+			playlistItems.forEach(item => {
+				const span = item.querySelector('span:last-child');
+				if (span && span.textContent.trim() === arg) {
+					item.classList.add('active');
+				}
+			});
+		} else {
+			// Library
+			url = '/music-player'; // Fix: default url
+			currentViewContext = 'library';
+			document.querySelectorAll('.nav-item')[0].classList.add('active'); // Index 0 is Library
+		}
+
+		window.history.pushState({ view: viewType, arg: arg }, '', url);
+		document.querySelector('.section-title').textContent = title;
+
+		// Fetch Data
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.get_library_songs',
+			args: apiArgs,
+			callback: function (r) {
+				const grid = document.getElementById('songs-grid');
+				grid.innerHTML = '';
+
+				if (r.message && r.message.length > 0) {
+					currentPlaylist = r.message; // Update global playlist
+					currentIndex = 0; // Reset index? Or keep? Reset seems safer for new view.
+
+					r.message.forEach(song => {
+						grid.appendChild(createSongCard(song));
+					});
+				} else {
+					currentPlaylist = [];
+					grid.innerHTML = `
+						<div class="empty-state">
+							<h5>No Tracks Found</h5>
+							<small>Try adding some music!</small>
+						</div>
+					`;
+				}
+			}
+		});
+	}
+
+	// Unified Song Card Creator
+	function createSongCard(data) {
+		const card = document.createElement('div');
+		card.className = 'song-card';
+
+		// Set data attributes
+		card.dataset.youtubeId = data.youtube_id || data.video_id; // Handle different API responses
+		card.dataset.title = data.title;
+		card.dataset.thumbnail = data.thumbnail;
+		card.dataset.channel = data.channel;
+
+		card.onclick = function () { playSongFromCard(this); };
+
+		const isFavorite = data.is_favorite;
+		const videoId = data.youtube_id || data.video_id;
+
+		card.innerHTML = `
+			<div class="card-image-wrapper" style="position: relative;">
+				<img src="${data.thumbnail}" alt="${data.title}" class="song-thumbnail">
+				<button class="playlist-btn"
+					onclick="event.stopPropagation(); openAddToPlaylistModal('${videoId}')">
+					<svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+						<line x1="12" y1="5" x2="12" y2="19"></line>
+						<line x1="5" y1="12" x2="19" y2="12"></line>
+					</svg>
+						<line x1="5" y1="12" x2="19" y2="12"></line>
+					</svg>
+				</button>
+				${currentViewContext === 'playlist' ?
+				`<button class="remove-btn" title="Remove from Playlist"
+					onclick="event.stopPropagation(); removeFromPlaylist('${videoId}', this.closest('.song-card'))">
+					<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+				</button>` : ''}
+				<button class="favorite-btn ${isFavorite ? 'active' : ''}"
+					onclick="event.stopPropagation(); toggleFavorite('${videoId}', this)">
+					<svg class="icon heart-icon" viewBox="0 0 24 24"
+						fill="${isFavorite ? '#e74c3c' : 'none'}"
+						stroke="${isFavorite ? '#e74c3c' : '#fff'}">
+						<path
+							d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+						</path>
+					</svg>
+				</button>
+				${data.duration ? `<span class="duration-badge">${data.duration}</span>` : ''}
+			</div>
+			<div class="song-info">
+				<div class="song-title">${data.title}</div>
+				<div class="song-channel">${data.channel}</div>
+			</div>
+		`;
+		return card;
+	}
+
+	function displaySearchResults(results) {
+		const grid = document.getElementById('songs-grid');
+		grid.innerHTML = '';
+		document.querySelector('.search-input').value = ''; // Clear search bar
+		document.getElementById('search-suggestions').style.display = 'none';
+
+		results.forEach(result => {
+			grid.appendChild(createSongCard(result));
+		});
+	}
+
+	function toggleFavorite(videoId, btn) {
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.toggle_favorite',
+			args: { video_id: videoId },
+			callback: function (r) {
+				if (r.message !== undefined) {
+					const isFav = r.message;
+					const icon = btn.querySelector('svg');
+
+					if (isFav) {
+						btn.classList.add('active');
+						icon.setAttribute('fill', '#e74c3c');
+						icon.setAttribute('stroke', '#e74c3c');
+						frappe.show_alert({ message: 'Added to favorites', indicator: 'green' });
+					} else {
+						btn.classList.remove('active');
+						icon.setAttribute('fill', 'none');
+						icon.setAttribute('stroke', '#fff');
+						frappe.show_alert({ message: 'Removed from favorites', indicator: 'gray' });
+
+						// If currently on favorites page, reload to remove item
+						const urlParams = new URLSearchParams(window.location.search);
+						if (urlParams.get('favorites')) {
+							location.reload();
+						}
+					}
+				}
+			}
+		});
+	}
+
+	function deleteSong(songName, cardElement) {
+		if (!confirm('Are you sure you want to delete this song from your library permanently?')) return;
+
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.delete_song',
+			args: { song_name: songName },
+			callback: function (r) {
+				if (r.message) {
+					frappe.show_alert({ message: 'Song deleted', indicator: 'green' });
+					cardElement.style.opacity = '0';
+					setTimeout(() => cardElement.remove(), 300);
+
+					// Update local playlist data
+					currentPlaylist = currentPlaylist.filter(s => s.name !== songName);
+				}
+			}
+		});
+	}
+
+	function removeFromPlaylist(videoId, cardElement) {
+		if (!confirm('Remove this song from the playlist?')) return;
+
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.remove_from_playlist',
+			args: {
+				playlist_name: currentContextArg,
+				video_id: videoId
+			},
+			callback: function (r) {
+				if (r.message) {
+					frappe.show_alert({ message: 'Song removed', indicator: 'green' });
+					// Animation
+					cardElement.style.opacity = '0';
+					setTimeout(() => cardElement.remove(), 300);
+
+					// Update local playlist data
+					currentPlaylist = currentPlaylist.filter(s => (s.youtube_id || s.video_id) !== videoId);
+				}
+			}
+		});
+	}
+
+	function loadPlaylist(playlistName) {
+		location.href = '/music-player?playlist=' + playlistName;
+	}
+
+	let currentSongIdForPlaylist = null;
+
+	function openAddToPlaylistModal(videoId) {
+		currentSongIdForPlaylist = videoId;
+		document.getElementById('playlist-modal').style.display = 'flex';
+		fetchPlaylists();
+	}
+
+	function closePlaylistModal(event) {
+		if (event && event.target !== event.currentTarget) return;
+		document.getElementById('playlist-modal').style.display = 'none';
+		currentSongIdForPlaylist = null;
+	}
+
+	function fetchPlaylists() {
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.get_playlists',
+			callback: function (r) {
+				const container = document.getElementById('modal-playlist-list');
+				if (r.message && r.message.length > 0) {
+					container.innerHTML = r.message.map(p => `
+						<div class="playlist-option" onclick="addToPlaylist('${p.playlist_name}')">
+							<svg class="library-icon" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+								<rect x="4" y="10" width="3" height="8"></rect>
+								<rect x="10" y="6" width="3" height="12"></rect>
+								<rect x="16" y="8" width="3" height="10"></rect>
+							</svg>
+							<span>${p.playlist_name}</span>
+						</div>
+					`).join('');
+				} else {
+					container.innerHTML = '<div style="text-align: center; color: #666; padding: 1rem;">No playlists found. Create one!</div>';
+				}
+			}
+		});
+	}
+
+	function createNewPlaylist() {
+		const name = document.getElementById('new-playlist-name').value;
+		if (!name) return;
+
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.create_playlist',
+			args: { playlist_name: name },
+			callback: function (r) {
+				if (r.message) {
+					document.getElementById('new-playlist-name').value = '';
+					fetchPlaylists();
+					frappe.show_alert({ message: 'Playlist created', indicator: 'green' });
+				}
+			}
+		});
+	}
+
+	function addToPlaylist(playlistName) {
+		if (!currentSongIdForPlaylist) return;
+
+		frappe.call({
+			method: 'music_player.music_player.youtube_api.add_to_playlist',
+			args: {
+				playlist_name: playlistName,
+				video_id: currentSongIdForPlaylist
+			},
+			callback: function (r) {
+				if (r.message) {
+					frappe.show_alert({ message: `Added to ${playlistName}`, indicator: 'green' });
+					closePlaylistModal();
+				}
+			}
+		});
+	}
+</script>
+{% endblock %}

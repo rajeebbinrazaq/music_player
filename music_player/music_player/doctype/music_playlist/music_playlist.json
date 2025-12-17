@@ -1,0 +1,77 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "field:playlist_name",
+    "creation": "2025-12-17 11:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "playlist_name",
+        "description",
+        "column_break_3",
+        "cover_image",
+        "section_break_5",
+        "songs"
+    ],
+    "fields": [
+        {
+            "fieldname": "playlist_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Playlist Name",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "fieldname": "description",
+            "fieldtype": "Text",
+            "label": "Description"
+        },
+        {
+            "fieldname": "cover_image",
+            "fieldtype": "Attach Image",
+            "label": "Cover Image"
+        },
+        {
+            "fieldname": "section_break_5",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "songs",
+            "fieldtype": "Table",
+            "label": "Songs",
+            "options": "Playlist Song"
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2025-12-17 11:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Music Player",
+    "name": "Music Playlist",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
+}
