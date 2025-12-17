@@ -1,4 +1,4 @@
-# Youtube Music Player App for ERPNext
+# Vyb Records - a YoutubeAPI based Music Player developed on frappe platform
 
 Developed by **[rajeebbinrazaq](https://github.com/rajeebbinrazaq)** | [View Source](https://github.com/rajeebbinrazaq/music_player)
 
