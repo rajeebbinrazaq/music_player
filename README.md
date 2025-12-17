@@ -9,10 +9,13 @@ A simple, modern minimal music player application developed on frappe platform t
 
 ## Features
 
-[+] **Modern UI Design**
-[+] **Music Management**
-[+] **Player Features**
-[+] **Library Management**
+1. **Search YouTube**
+2. **Add from URL**
+3. **Playlist Management**
+4. **Modern UI Design**
+5. **Music Management**
+6. **Player Features**
+7. **Library Management**
 
 
 
@@ -54,18 +57,6 @@ bench --site site-name migrate
    - Go to **Music Player** module
    - Click on **Music Playlist** or **YouTube Song**
 
-### Add files
-
-[] **Search YouTube**
-
-[] **Add from URL**
-
-### Other features
-
-[] **Playlists**
-[] **Library**
-[] **Player**
-[] **Settings**
 
 ## License
 
