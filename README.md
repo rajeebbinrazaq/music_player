@@ -1,4 +1,5 @@
-# Vyb Records - a YoutubeAPI based Music Player developed on frappe platform
+# Vyb Records
+A YoutubeAPI based Music Player developed on frappe platform
 
 Developed by **[rajeebbinrazaq](https://github.com/rajeebbinrazaq)** | [View Source](https://github.com/rajeebbinrazaq/music_player)
 
@@ -8,10 +9,10 @@ A simple, modern minimal music player application developed on frappe platform t
 
 ## Features
 
-[] **Modern UI Design**
-[] **Music Management**
-[] **Player Features**
-[] **Library Management**
+[+] **Modern UI Design**
+[+] **Music Management**
+[+] **Player Features**
+[+] **Library Management**
 
 
 
